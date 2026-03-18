@@ -1,4 +1,5 @@
 """The Allnet integration."""
+
 from __future__ import annotations
 
 import logging
@@ -15,7 +16,11 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.SWITCH]
+PLATFORMS: list[Platform] = [
+    Platform.SENSOR,
+    Platform.BINARY_SENSOR,
+    Platform.SWITCH,
+]
 
 SCAN_INTERVAL = timedelta(seconds=60)
 
@@ -29,7 +34,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     device = AllnetDevice(host, username, password)
 
     try:
-        # Test connection and get device info
         await hass.async_add_executor_job(device.get_device_info)
     except Exception as err:
         _LOGGER.error("Could not connect to Allnet device: %s", err)
@@ -52,7 +56,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         update_interval=SCAN_INTERVAL,
     )
 
-    # Fetch initial data
     await coordinator.async_config_entry_first_refresh()
 
     hass.data.setdefault(DOMAIN, {})
@@ -62,7 +65,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     }
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
     return True
 
 
